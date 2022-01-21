@@ -1,10 +1,12 @@
 package Challenge.Challenge.Controllers;
 
-import Challenge.Challenge.DAO.RecipieRepository;
+import Challenge.Challenge.DAO.RecipieRepository; 
 import Challenge.Challenge.entity.Recipie;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,6 +19,10 @@ import Challenge.Challenge.Services.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.net.URL;
 
 @RestController
 public class HomeController {
@@ -51,13 +57,14 @@ public class HomeController {
 
 	@GetMapping("/{recipieId}/show")
 	@ResponseBody
-	public byte[] showRecipie(@PathVariable("recipieId") int recipieId)throws IOException {
+	public ResponseEntity<byte[]>  showRecipie(@PathVariable("recipieId") int recipieId)throws IOException {
+		System.out.print("inside");
 		Recipie r = recipieRepository.getById(recipieId);
 		String url = r.getImage();
 		System.out.println("Image URL: "+url);
-		InputStream in = getClass().getResourceAsStream(url);
-		System.out.println(in);
-		return in.readAllBytes();	 
+		URL url2 = new URL(url);//Fetching image from web
+	    InputStream is = url2.openStream();
+		byte[] str = is.readAllBytes();
+		return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(str);
 	}
-
 }
